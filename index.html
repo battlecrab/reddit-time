@@ -14,160 +14,174 @@
 var days = new Array();
 var events = new Array();
 
-function update(){
-	document.getElementById('out').innerHTML = "Working...";
-	days = new Array();
-	events = new Array();
+function update() {
+    document.getElementById('out').innerHTML = "Working...";
+    days = new Array();
+    events = new Array();
 
-	var raw = document.getElementById('in').value.toString();
-	var raw1 = raw.split(" ");
+    var raw = document.getElementById('in').value.toString();
+    var raw1 = raw.split(" ");
 
-	var datePos = new Array();
+    var datePos = new Array();
 
-	for(var c = 0;c<raw1.length;c++){
+    for (var c = 0; c < raw1.length; c++) {
 
-		if(raw1[c].split("-").length==3&&raw1[c].split("--").length!=2){
-			//console.log(raw1[c] + " is a date");
-			datePos.push(c);
-		}
+        if (raw1[c].split("-").length == 3 && raw1[c].split("--").length != 2) {
+            //console.log(raw1[c] + " is a date");
+            datePos.push(c);
+        }
 
-	}
+    }
 
-	datePos.push(raw1.length);
+    datePos.push(raw1.length);
 
-	
 
-	for(var c = 0;c<datePos.length-1;c++){
-		var eventR = "";
-		for(var c1 = datePos[c];c1<=datePos[c+1]-1;c1++){
-			//console.log(datePos[c] + " " + datePos[c+1]);
-			eventR+=raw1[c1] + " ";
-		}
-		
-		events.push(new entry(eventR));
 
-	}
+    for (var c = 0; c < datePos.length - 1; c++) {
+        var eventR = "";
+        for (var c1 = datePos[c]; c1 <= datePos[c + 1] - 1; c1++) {
+            //console.log(datePos[c] + " " + datePos[c+1]);
+            eventR += raw1[c1] + " ";
+        }
 
-	for(var c = 0;c<events.length;c++){
-		var hasDay = false;
-		var dayID = 0;
-		for(var c1=0;c1<days.length;c1++){
-			if(events[c].normDate==days[c1].normDate){hasDay=true;dayID=c1;break;}
-		}
-		if(!hasDay){
-			console.log("creating day");
-			var d = new day();
-			d.normDate = events[c].normDate;
-			d.events.push(events[c]);
-			days.push(d);
-		}else{
-			days[dayID].events.push(events[c]);
-		}
-	}
+        events.push(new entry(eventR));
 
-	for(var c = 0;c<days.length;c++){
-		days[c].sort();
-	}
+    }
 
-	sortDays();
+    for (var c = 0; c < events.length; c++) {
+        var hasDay = false;
+        var dayID = 0;
+        for (var c1 = 0; c1 < days.length; c1++) {
+            if (events[c].normDate == days[c1].normDate) {
+                hasDay = true;
+                dayID = c1;
+                break;
+            }
+        }
+        if (!hasDay) {
+            console.log("creating day");
+            var d = new day();
+            d.normDate = events[c].normDate;
+            d.events.push(events[c]);
+            days.push(d);
+        } else {
+            days[dayID].events.push(events[c]);
+        }
+    }
 
-	//calculate reddit time
+    for (var c = 0; c < days.length; c++) {
+        days[c].sort();
+    }
 
-	for(var c = 0;c<days.length;c++){
+    sortDays();
 
-		for(var c1 = 0;c1<days[c].events.length-1;c1++){
-			days[c].events[c1].redTime = days[c].events[c1+1].start-days[c].events[c1].end;
-		}
+    //calculate reddit time
 
-		var maxTime = 0;
-		var maxId = 0;
+    for (var c = 0; c < days.length; c++) {
 
-		for(var c1 = 0;c1<days[c].events.length;c1++){
-			if(days[c].events[c1].redTime>maxTime){
-				maxId = c1;
-				maxTime = days[c].events[c1].redTime;
-			}
-		}
+        for (var c1 = 0; c1 < days[c].events.length - 1; c1++) {
+            days[c].events[c1].redTime = days[c].events[c1 + 1].start - days[c].events[c1].end;
+        }
 
-		days[c].events[maxId].maxTime = true;
-	}
+        var maxTime = 0;
+        var maxId = 0;
 
-	//output
-	console.log(days);
+        for (var c1 = 0; c1 < days[c].events.length; c1++) {
+            if (days[c].events[c1].redTime > maxTime) {
+                maxId = c1;
+                maxTime = days[c].events[c1].redTime;
+            }
+        }
 
-	var out = ""
+        days[c].events[maxId].maxTime = true;
+    }
 
-	for(var c = 0;c<days.length;c++){
-		console.log("" + days[c].normDate)
-		out+="<br/>Date " + days[c].normDate + "<br/>";
-		for(var c1 = 0;c1<days[c].events.length;c1++){
-			console.log("From " + days[c].events[c1].start + " to " + days[c].events[c1].end
-				+ " " + days[c].events[c1].eventText + " Reddit: " + days[c].events[c1].redTime + " minutes" + " Maximum " + days[c].events[c1].maxTime);
-			out+= "From " + days[c].events[c1].start + " to " + days[c].events[c1].end
-				+ " " + days[c].events[c1].eventText + " Reddit: " + days[c].events[c1].redTime + " minutes" + " Maximum " + days[c].events[c1].maxTime + "<br/>";
-			
-		}
-	}
+    //output
+    console.log(days);
 
-	document.getElementById('out').innerHTML = out;
+    var out = ""
+
+    for (var c = 0; c < days.length; c++) {
+        console.log("" + days[c].normDate)
+        out += "<br/>Date " + days[c].normDate + "<br/>";
+        for (var c1 = 0; c1 < days[c].events.length; c1++) {
+            console.log("From " + days[c].events[c1].start + " to " + days[c].events[c1].end + " " + days[c].events[c1].eventText + " Reddit: " + days[c].events[c1].redTime + " minutes" + " Maximum " + days[c].events[c1].maxTime);
+            out += "From " + days[c].events[c1].start + " to " + days[c].events[c1].end + " " + days[c].events[c1].eventText + " Reddit: " + days[c].events[c1].redTime + " minutes" + " Maximum " + days[c].events[c1].maxTime + "<br/>";
+
+        }
+    }
+
+    document.getElementById('out').innerHTML = out;
 }
 
-function entry(raw){
-		//console.log(raw);
-	this.eventText = raw.split(" -- ")[1];
-	//console.log(this.eventText);
-		var rawTime = raw.split(" -- ")[0];
-		var rawDate = rawTime.split(":")[0];
-		var rawDate1 = rawDate.split("-");
-		if(parseInt(rawDate1[1])<10){rawDate1[1]="0"+rawDate1[1].toString();}
-		//console.log(rawDate1[1]);
-		if(parseInt(rawDate1[0])<10){rawDate1[0]="0"+rawDate1[0].toString();}
-		//console.log(rawDate1[0]);
-	this.normDate = parseInt(rawDate1[2]+rawDate1[0]+rawDate1[1]);
-	//console.log(this.normDate);
-		var rawStart = rawTime.split(" ")[1];
-		var start = parseInt(rawStart.split(":")[0]+rawStart.split(":")[1]);
-		if(rawTime.split(" ")[2]=="AM"){}else if(start<1200){start+=1200;}
-	this.start = start;
-	//console.log(this.start);
-		var rawEnd = rawTime.split(" ")[4];
-		var end = parseInt(rawEnd.split(":")[0]+rawEnd.split(":")[1]);
-		if(rawTime.split(" ")[5]=="AM"){}else if(end<1200){end+=1200;}
-	this.end = end;
-	//console.log(this.end);
-	//console.log(this);
-	this.redTime = 0;
-	this.maxTime = false;
-}	
-
-function day(){
-	this.normDate = 0;
-	this.events = new Array();
-	day.prototype.sort = function(){
-		var sorted = new Array();
-		for(var c = 0;c<this.events.length;c++){
-			sorted[this.events[c].start] = this.events[c];
-		}
-
-		this.events = new Array();
-		for(var c = 0;c<sorted.length;c++){
-			if(sorted[c]!=undefined){this.events.push(sorted[c]);}
-		}
-
-		
-		
-	}
+function entry(raw) {
+    //console.log(raw);
+    this.eventText = raw.split(" -- ")[1];
+    //console.log(this.eventText);
+    var rawTime = raw.split(" -- ")[0];
+    var rawDate = rawTime.split(":")[0];
+    var rawDate1 = rawDate.split("-");
+    if (parseInt(rawDate1[1]) < 10) {
+        rawDate1[1] = "0" + rawDate1[1].toString();
+    }
+    //console.log(rawDate1[1]);
+    if (parseInt(rawDate1[0]) < 10) {
+        rawDate1[0] = "0" + rawDate1[0].toString();
+    }
+    //console.log(rawDate1[0]);
+    this.normDate = parseInt(rawDate1[2] + rawDate1[0] + rawDate1[1]);
+    //console.log(this.normDate);
+    var rawStart = rawTime.split(" ")[1];
+    var start = parseInt(rawStart.split(":")[0] + rawStart.split(":")[1]);
+    if (rawTime.split(" ")[2] == "AM") {} else if (start < 1200) {
+        start += 1200;
+    }
+    this.start = start;
+    //console.log(this.start);
+    var rawEnd = rawTime.split(" ")[4];
+    var end = parseInt(rawEnd.split(":")[0] + rawEnd.split(":")[1]);
+    if (rawTime.split(" ")[5] == "AM") {} else if (end < 1200) {
+        end += 1200;
+    }
+    this.end = end;
+    //console.log(this.end);
+    //console.log(this);
+    this.redTime = 0;
+    this.maxTime = false;
 }
 
-function sortDays(){
-	var sorted = new Array();
-	for(var c = 0;c<days.length;c++){
-		sorted[days[c].normDate] = days[c];
-	}
-	days = new Array();
-	for(var c = 0;c<sorted.length;c++){
-		if(sorted[c]!=undefined){days.push(sorted[c])}
-	}
+function day() {
+    this.normDate = 0;
+    this.events = new Array();
+    day.prototype.sort = function() {
+        var sorted = new Array();
+        for (var c = 0; c < this.events.length; c++) {
+            sorted[this.events[c].start] = this.events[c];
+        }
+
+        this.events = new Array();
+        for (var c = 0; c < sorted.length; c++) {
+            if (sorted[c] != undefined) {
+                this.events.push(sorted[c]);
+            }
+        }
+
+
+
+    }
+}
+
+function sortDays() {
+    var sorted = new Array();
+    for (var c = 0; c < days.length; c++) {
+        sorted[days[c].normDate] = days[c];
+    }
+    days = new Array();
+    for (var c = 0; c < sorted.length; c++) {
+        if (sorted[c] != undefined) {
+            days.push(sorted[c])
+        }
+    }
 
 }
 
